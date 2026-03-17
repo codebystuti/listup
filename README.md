@@ -2,7 +2,7 @@
 
 Started as a YouTube tutorial project. Rebuilt it completely — different UI, added features, cleaned up the code until it felt like something I'd actually want to use.
 
-**[Live Demo](https://codebystuti.github.io/vanilla-todo)**
+**[Live Demo](https://codebystuti.github.io/listup)**
 
 ---
 
