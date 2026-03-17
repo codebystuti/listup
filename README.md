@@ -2,7 +2,7 @@
 
 Started as a YouTube tutorial project. Rebuilt it completely — different UI, added features, cleaned up the code until it felt like something I'd actually want to use.
 
-**[Live Demo](https://codebystuti.github.io/vanilla-todo)**
+**[Live Demo](https://codebystuti.github.io/listup)**
 
 ---
 
@@ -38,7 +38,7 @@ Vanilla JS · Bootstrap 5 (layout utilities only) · Font Awesome · Nunito via 
 
 ## Run locally
 
-Rename `todo.html` to `index.html`, open in browser. No install, no build step.
+open in browser. No install, no build step.
 
 ---
 
