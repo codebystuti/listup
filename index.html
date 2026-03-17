@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-do — codebystuti</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sm:          11px;
+      --base:        13px;
+      --lg:          17px;
+      --accent:      #3a56e8;
+      --accent-dark: #2840c4;
+      --accent-glow: rgba(58,86,232,0.10);
+      --bg:          #eceae6;
+      --card:        #f8f7f4;
+      --border:      rgba(0,0,0,0.09);
+      --text:        #1a1a1c;
+      --muted:       #6b6862;
+      --done:        #a8a49e;
+      --dur-fast:    150ms;
+      --dur-normal:  240ms;
+      --dur-slow:    360ms;
+      --ease:        cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      font-size: var(--base);
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .todo-card {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.07), 0 20px 48px rgba(0,0,0,0.09);
+      animation: cardIn var(--dur-slow) var(--ease) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .todo-header {
+      height: 148px;
+      background-color: #1a2a4a;
+      background-size: cover;
+      background-position: center;
+      border-radius: 16px 16px 0 0;
+      transition: background-image var(--dur-slow) var(--ease);
+    }
+
+    .todo-header::before {
+      content: '';
+      inset: 0;
+      background: rgba(20,40,100,0.38);
+      z-index: 1;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .todo-header::after {
+      content: '';
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.08) 52%, transparent 100%);
+      z-index: 2;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .header-body {
+      inset: 0;
+      z-index: 3;
+      padding: 14px 16px;
+    }
+
+    .header-date {
+      font-size: var(--lg);
+      font-weight: 400;
+      color: #fff;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .clear-btn {
+      top: 12px;
+      right: 12px;
+      z-index: 4;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.28);
+      color: rgba(255,255,255,0.68);
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    }
+    .clear-btn:hover { background: rgba(0,0,0,0.52); color: #fff; }
+    .clear-btn:hover i { display: inline-block; transform: rotate(180deg); transition: transform var(--dur-fast) var(--ease); }
+
+    .controls-bar {
+      gap: 5px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-pill {
+      font-size: var(--sm);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      padding: 5px 11px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    }
+    .filter-pill:hover  { border-color: var(--accent); color: var(--accent); }
+    .filter-pill:active { transform: scale(0.95); }
+    .filter-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .sort-trigger {
+      font-size: var(--sm);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      padding: 5px 9px 5px 11px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      gap: 5px;
+      transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+    }
+    .sort-trigger:hover { border-color: var(--accent); color: var(--accent); }
+    .sort-trigger.open  { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+    .sort-arrow {
+      font-size: 9px;
+      transition: transform var(--dur-fast) var(--ease);
+    }
+    .sort-trigger.open .sort-arrow { transform: rotate(180deg); }
+
+    .sort-dropdown {
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
+      min-width: 120px;
+      z-index: 100;
+      transform-origin: top right;
+      animation: dropIn var(--dur-normal) var(--ease) both;
+    }
+    .sort-dropdown.closing { animation: dropOut var(--dur-fast) var(--ease) both; }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes dropOut {
+      from { opacity: 1; transform: scale(1) translateY(0); }
+      to   { opacity: 0; transform: scale(0.92) translateY(-6px); }
+    }
+
+    .sort-option {
+      font-size: var(--sm);
+      font-weight: 500;
+      color: var(--text);
+      padding: 9px 14px;
+      cursor: pointer;
+      gap: 10px;
+      transition: background var(--dur-fast) var(--ease);
+      white-space: nowrap;
+    }
+    .sort-option:not(:last-child) { border-bottom: 1px solid var(--border); }
+    .sort-option:hover    { background: rgba(58,86,232,0.05); color: var(--accent); }
+    .sort-option.selected { color: var(--accent); }
+
+    .sort-check { font-size: 10px; color: var(--accent); opacity: 0; }
+    .sort-option.selected .sort-check { opacity: 1; }
+
+    .todo-list {
+      list-style: none;
+      min-height: 108px;
+      max-height: 290px;
+      overflow-y: auto;
+      padding: 2px 0;
+    }
+    .todo-list::-webkit-scrollbar { width: 3px; }
+    .todo-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .empty-state {
+      padding: 36px 16px 32px;
+      animation: fadeUp var(--dur-normal) var(--ease) both;
+    }
+    .empty-text { font-size: var(--sm); font-weight: 300; color: var(--muted); letter-spacing: 0.08em; }
+    .empty-sparkle { font-size: 10px; color: var(--muted); margin-left: 4px; opacity: 0.6; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .todo-item {
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--dur-fast) var(--ease);
+    }
+    .todo-item:last-child  { border-bottom: none; }
+    .todo-item:hover       { background: rgba(0,0,0,0.012); }
+    .todo-item.item-enter  { animation: itemIn var(--dur-normal) var(--ease) both; }
+
+    @keyframes itemIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .todo-item.item-exit {
+      overflow: hidden;
+      pointer-events: none;
+      animation: itemFade 320ms var(--ease) forwards;
+    }
+
+    @keyframes itemFade {
+      0%   { opacity: 1; transform: translateX(0);     max-height: 60px; }
+      55%  { opacity: 0; transform: translateX(-20px); max-height: 60px; }
+      100% { opacity: 0; transform: translateX(-20px); max-height: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
+    }
+
+    .check-btn {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      flex-shrink: 0;
+      cursor: pointer;
+      font-size: 8px;
+      color: transparent;
+      padding: 0;
+      transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    }
+    .check-btn:hover { border-color: var(--accent); transform: scale(1.12); }
+    .check-btn.done  { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .task-text {
+      line-height: 1.4;
+      word-break: break-word;
+      user-select: none;
+      cursor: text;
+      transition: color var(--dur-normal) var(--ease);
+    }
+    .task-text.done { text-decoration: line-through; color: var(--done); }
+
+    .task-edit-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid var(--accent);
+      outline: none;
+      padding: 0;
+      animation: fadeUp var(--dur-fast) var(--ease) both;
+    }
+
+    .delete-btn {
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      flex-shrink: 0;
+      padding: 0;
+      transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    }
+    .todo-item:hover .delete-btn { opacity: 1; }
+    .delete-btn:hover { transform: scale(1.2); }
+
+    .input-area { padding: 11px 14px 8px; }
+
+    .input-row {
+      gap: 7px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 6px 6px 14px;
+      transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+    }
+    .input-row:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .input-row input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+    }
+    .input-row input::placeholder { color: var(--muted); font-weight: 300; }
+
+    .add-btn {
+      font-size: var(--sm);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      line-height: 1;
+      transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    }
+    .add-btn:hover  { background: var(--accent-dark); }
+    .add-btn:active { transform: scale(0.96); }
+
+    .todo-footer {
+      border-top: 1px solid var(--border);
+      padding: 8px 14px;
+    }
+
+    .footer-stats {
+      font-size: var(--sm);
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      transition: opacity var(--dur-normal) var(--ease);
+    }
+
+    .footer-link {
+      font-size: var(--sm);
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+    }
+    .footer-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    .undo-toast {
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1c1c1e;
+      color: #fff;
+      font-size: var(--sm);
+      font-weight: 500;
+      padding: 9px 14px;
+      border-radius: 10px;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+      z-index: 9999;
+      white-space: nowrap;
+      animation: toastIn 200ms var(--ease) both;
+    }
+    .undo-toast.hiding { animation: toastOut 200ms var(--ease) forwards; }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    }
+
+    .undo-btn {
+      font-size: var(--sm);
+      font-weight: 700;
+      color: var(--accent);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+  </style>
+</head>
+<body class="min-vh-100 d-flex align-items-center justify-content-center p-4">
+  <div class="todo-card overflow-hidden">
+
+    <div class="todo-header position-relative" id="todo-header">
+      <button class="clear-btn position-absolute d-flex align-items-center justify-content-center" id="clearBtn" title="Clear all tasks" aria-label="Clear all tasks">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+      <div class="header-body position-absolute d-flex flex-column justify-content-end w-100 h-100">
+        <div class="header-date" id="date-display">—</div>
+      </div>
+    </div>
+
+    <div class="controls-bar d-flex align-items-center">
+      <button class="filter-pill active" data-filter="all" aria-pressed="true">all</button>
+      <button class="filter-pill" data-filter="incomplete" aria-pressed="false">active</button>
+      <button class="filter-pill" data-filter="completed" aria-pressed="false">done</button>
+      <div class="position-relative ms-auto" id="sortWrap">
+        <button class="sort-trigger d-flex align-items-center" id="sortTrigger" aria-haspopup="listbox" aria-expanded="false">
+          <span id="sortLabel">by date</span>
+          <i class="fa-solid fa-chevron-down sort-arrow"></i>
+        </button>
+      </div>
+    </div>
+
+    <ul class="todo-list" id="list"></ul>
+
+    <div class="input-area">
+      <div class="input-row d-flex align-items-center">
+        <input type="text" id="input" placeholder="add a task…" autocomplete="off" aria-label="New task name" />
+        <button class="add-btn" id="addButton" aria-label="Add task">+ add</button>
+      </div>
+    </div>
+
+    <div class="todo-footer d-flex justify-content-between align-items-center">
+      <span class="footer-stats" id="stats-display" aria-live="polite"></span>
+      <a href="https://github.com/codebystuti" target="_blank" rel="noopener" class="footer-link" aria-label="Visit codebystuti on GitHub">codebystuti</a>
+    </div>
+
+  </div>
+
+  <script>
+    const UNSPLASH_IDS = [
+      'photo-1501854140801-50d01698950b',
+      'photo-1448375240586-882707db888b',
+      'photo-1470071459604-3b5ec3a7fe05',
+      'photo-1433086966358-54859d0ed716',
+      'photo-1472214103451-9374bd1c798e',
+      'photo-1464822759023-fed622ff2c3b',
+      'photo-1519681393784-d120267933ba',
+      'photo-1506905925346-21bda4d32df4',
+    ];
+
+    function randomBg() {
+      const id  = UNSPLASH_IDS[Math.floor(Math.random() * UNSPLASH_IDS.length)];
+      const img = new Image();
+      img.onload = () => { document.getElementById('todo-header').style.backgroundImage = `url('https://images.unsplash.com/${id}?w=800&q=80')`; };
+      img.src = `https://images.unsplash.com/${id}?w=800&q=80`;
+    }
+    randomBg();
+
+    const listEl       = document.getElementById('list');
+    const inputEl      = document.getElementById('input');
+    const addBtn       = document.getElementById('addButton');
+    const clearBtn     = document.getElementById('clearBtn');
+    const sortTrigger  = document.getElementById('sortTrigger');
+    const sortLabel    = document.getElementById('sortLabel');
+    const sortWrap     = document.getElementById('sortWrap');
+    const dateDisplay  = document.getElementById('date-display');
+    const statsDisplay = document.getElementById('stats-display');
+    const filterPills  = document.querySelectorAll('.filter-pill');
+    const SORT_OPTIONS = [
+      { value: 'date',         label: 'by date' },
+      { value: 'alphabetical', label: 'a → z'   },
+    ];
+    let sortValue    = 'date';
+    let dropdownOpen = false;
+    let dropdownEl   = null;
+    let undoTimer    = null;
+
+    let LIST      = JSON.parse(localStorage.getItem('TODO') || '[]');
+    let nextId    = LIST.length ? Math.max(...LIST.map(i => i.id)) + 1 : 0;
+    let activeFilter = 'all';
+
+    dateDisplay.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+    const save = () => localStorage.setItem('TODO', JSON.stringify(LIST));
+    const esc  = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    function syncSortAria() { sortTrigger.setAttribute('aria-expanded', dropdownOpen ? 'true' : 'false'); }
+
+    function openDropdown() {
+      if (dropdownOpen) return;
+      dropdownOpen = true;
+      sortTrigger.classList.add('open');
+      syncSortAria();
+      dropdownEl = document.createElement('div');
+      dropdownEl.className = 'sort-dropdown position-absolute overflow-hidden';
+      dropdownEl.setAttribute('role', 'listbox');
+      dropdownEl.setAttribute('tabindex', '-1');
+      const optEls = [];
+      SORT_OPTIONS.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = `sort-option d-flex align-items-center justify-content-between${opt.value === sortValue ? ' selected' : ''}`;
+        div.setAttribute('role', 'option');
+        div.setAttribute('aria-selected', opt.value === sortValue ? 'true' : 'false');
+        div.setAttribute('tabindex', '0');
+        div.innerHTML = `${opt.label}<i class="fa-solid fa-check sort-check"></i>`;
+        div.addEventListener('click', () => { sortValue = opt.value; sortLabel.textContent = opt.label; closeDropdown(); render(); });
+        div.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ')  { e.preventDefault(); sortValue = opt.value; sortLabel.textContent = opt.label; closeDropdown(); render(); }
+          if (e.key === 'ArrowDown') { e.preventDefault(); optEls[idx + 1]?.focus(); }
+          if (e.key === 'ArrowUp')   { e.preventDefault(); optEls[idx - 1] ? optEls[idx - 1].focus() : sortTrigger.focus(); }
+          if (e.key === 'Escape')    { closeDropdown(); sortTrigger.focus(); }
+          if (e.key === 'Tab')       { closeDropdown(); }
+        });
+        optEls.push(div);
+        dropdownEl.appendChild(div);
+      });
+      sortWrap.appendChild(dropdownEl);
+      optEls[0]?.focus();
+    }
+
+    function closeDropdown() {
+      if (!dropdownOpen || !dropdownEl) return;
+      dropdownOpen = false;
+      sortTrigger.classList.remove('open');
+      syncSortAria();
+      dropdownEl.classList.add('closing');
+      dropdownEl.addEventListener('animationend', () => { dropdownEl?.remove(); dropdownEl = null; }, { once: true });
+    }
+
+    sortTrigger.addEventListener('click', e => { e.stopPropagation(); dropdownOpen ? closeDropdown() : openDropdown(); });
+    sortTrigger.addEventListener('keydown', e => {
+      if (['ArrowDown','Enter',' '].includes(e.key)) { e.preventDefault(); if (!dropdownOpen) openDropdown(); }
+      if (e.key === 'Escape') closeDropdown();
+    });
+    document.addEventListener('click', closeDropdown);
+
+    function showUndo(label, onUndo) {
+      if (undoTimer) { clearTimeout(undoTimer); removeToast(); }
+      const toast = document.createElement('div');
+      toast.className = 'undo-toast position-fixed d-flex align-items-center';
+      toast.id = 'undo-toast';
+      toast.innerHTML = `${label} <button class="undo-btn ms-1" id="undoBtn">Undo</button>`;
+      document.body.appendChild(toast);
+      document.getElementById('undoBtn').addEventListener('click', () => {
+        clearTimeout(undoTimer);
+        undoTimer = null;
+        onUndo();
+        removeToast();
+      });
+      undoTimer = setTimeout(() => { undoTimer = null; save(); removeToast(); }, 4000);
+    }
+
+    function removeToast() {
+      const t = document.getElementById('undo-toast');
+      if (!t) return;
+      t.classList.add('hiding');
+      t.addEventListener('animationend', () => t.remove(), { once: true });
+    }
+
+    function render(newItemId = null) {
+      const active    = LIST.filter(i => !i.trash);
+      const total     = active.length;
+      const done      = active.filter(i => i.done).length;
+      const remaining = total - done;
+
+      let visible = active.filter(i => {
+        if (activeFilter === 'completed')  return i.done;
+        if (activeFilter === 'incomplete') return !i.done;
+        return true;
+      });
+
+      sortValue === 'alphabetical'
+        ? visible.sort((a,b) => a.name.localeCompare(b.name))
+        : visible.sort((a,b) => (a.createdAt ?? a.id) - (b.createdAt ?? b.id));
+
+      listEl.innerHTML = '';
+
+      if (!visible.length) {
+        const msg = activeFilter === 'completed' && done === 0 ? 'nothing completed yet'
+                  : activeFilter === 'incomplete' && total > 0 ? 'all caught up'
+                  : 'nothing here yet';
+        const li = document.createElement('li');
+        li.className = 'empty-state d-flex align-items-center justify-content-center';
+        li.innerHTML = `<span class="empty-text">${msg} <span class="empty-sparkle">✦</span></span>`;
+        listEl.appendChild(li);
+      } else {
+        visible.forEach(item => {
+          const li = document.createElement('li');
+          li.className  = 'todo-item d-flex align-items-center';
+          li.dataset.id = item.id;
+          if (item.id === newItemId) li.classList.add('item-enter');
+          li.innerHTML = `
+            <button class="check-btn d-flex align-items-center justify-content-center ${item.done ? 'done' : ''}" data-action="toggle" aria-label="${item.done ? 'Mark incomplete' : 'Mark complete'}">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <span class="task-text flex-grow-1 ${item.done ? 'done' : ''}">${esc(item.name)}</span>
+            <button class="delete-btn d-flex align-items-center justify-content-center" data-action="delete" aria-label="Delete task">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          `;
+          li.querySelector('.task-text').addEventListener('dblclick', () => startEdit(li, item));
+          listEl.appendChild(li);
+        });
+      }
+
+      if (total === 0)          statsDisplay.textContent = '';
+      else if (remaining === 0) statsDisplay.textContent = 'all done';
+      else                      statsDisplay.textContent = `${done} / ${total} done`;
+    }
+
+    function addTask() {
+      const name = inputEl.value.trim();
+      if (!name) { inputEl.focus(); return; }
+      const id = nextId++;
+      LIST.push({ id, name, done: false, trash: false, createdAt: Date.now() });
+      save(); render(id);
+      inputEl.value = '';
+      inputEl.focus();
+    }
+
+    function toggleTask(id) {
+      const item = LIST.find(i => i.id === id);
+      if (!item) return;
+      item.done = !item.done;
+      save();
+      const li      = listEl.querySelector(`[data-id="${id}"]`);
+      const checkEl = li?.querySelector('.check-btn');
+      const textEl  = li?.querySelector('.task-text');
+      if (checkEl) { checkEl.classList.toggle('done', item.done); checkEl.setAttribute('aria-label', item.done ? 'Mark incomplete' : 'Mark complete'); }
+      if (textEl)  textEl.classList.toggle('done', item.done);
+      setTimeout(() => render(), 250);
+    }
+
+    function deleteTask(id) {
+      const index = LIST.findIndex(i => i.id === id);
+      if (index === -1) return;
+      const item = LIST[index];
+      const li = listEl.querySelector(`[data-id="${id}"]`);
+      const doDelete = () => {
+        item.trash = true;
+        render();
+        showUndo('Deleted', () => { item.trash = false; LIST.splice(LIST.indexOf(item), 1); LIST.splice(index, 0, item); save(); render(); });
+      };
+      if (li) { li.classList.add('item-exit'); li.addEventListener('animationend', doDelete, { once: true }); }
+      else doDelete();
+    }
+
+    clearBtn.addEventListener('click', () => {
+      randomBg();
+      const active = LIST.filter(i => !i.trash);
+      if (!active.length) return;
+      const snapshot = active.map(i => ({ ...i }));
+      const snapId = nextId;
+      const items = listEl.querySelectorAll('.todo-item');
+      items.forEach((li, i) => { li.style.animationDelay = `${i * 30}ms`; li.classList.add('item-exit'); });
+      setTimeout(() => {
+        LIST = []; nextId = 0;
+        save(); render();
+        showUndo('Cleared', () => { LIST = snapshot; nextId = snapId; save(); render(); });
+      }, items.length * 30 + 280);
+    });
+
+    function startEdit(li, item) {
+      const textEl    = li.querySelector('.task-text');
+      const editInput = document.createElement('input');
+      editInput.className = 'task-edit-input flex-grow-1';
+      editInput.value     = item.name;
+      textEl.replaceWith(editInput);
+      editInput.focus();
+      editInput.select();
+      let committed = false;
+      const commit = () => {
+        if (committed) return;
+        committed = true;
+        const v = editInput.value.trim();
+        if (v && v !== item.name) { item.name = v; save(); }
+        render();
+      };
+      editInput.addEventListener('blur', commit);
+      editInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter')  editInput.blur();
+        if (e.key === 'Escape') { committed = true; render(); }
+      });
+    }
+
+    listEl.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = Number(btn.closest('.todo-item')?.dataset.id);
+      if (isNaN(id)) return;
+      if (btn.dataset.action === 'toggle') toggleTask(id);
+      if (btn.dataset.action === 'delete') deleteTask(id);
+    });
+
+    filterPills.forEach(p => p.addEventListener('click', () => {
+      filterPills.forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
+      p.classList.add('active'); p.setAttribute('aria-pressed', 'true');
+      activeFilter = p.dataset.filter;
+      render();
+    }));
+
+    addBtn.addEventListener('click', addTask);
+    inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+    render();
+  </script>
+</body>
+</html>
