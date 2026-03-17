@@ -12,17 +12,17 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --sm:          11px;
-      --base:        13px;
-      --lg:          17px;
+      --sm:          12px;
+      --base:        14px;
+      --lg:          18px;
       --accent:      #3a56e8;
       --accent-dark: #2840c4;
       --accent-glow: rgba(58,86,232,0.10);
       --bg:          #eceae6;
       --card:        #f8f7f4;
-      --border:      rgba(0,0,0,0.09);
+      --border:      rgba(58,86,232,0.12);
       --text:        #1a1a1c;
-      --muted:       #6b6862;
+      --muted:       #5a6480;
       --done:        #a8a49e;
       --dur-fast:    150ms;
       --dur-normal:  240ms;
@@ -201,8 +201,8 @@
 
     .todo-list {
       list-style: none;
-      min-height: 108px;
-      max-height: 290px;
+      min-height: 150px;
+      max-height: 300px;
       overflow-y: auto;
       padding: 2px 0;
     }
@@ -213,8 +213,8 @@
       padding: 36px 16px 32px;
       animation: fadeUp var(--dur-normal) var(--ease) both;
     }
-    .empty-text { font-size: var(--sm); font-weight: 300; color: var(--muted); letter-spacing: 0.08em; }
-    .empty-sparkle { font-size: 10px; color: var(--muted); margin-left: 4px; opacity: 0.6; }
+    .empty-text { font-size: var(--sm); font-weight: 400; color: var(--muted); letter-spacing: 0.08em; }
+    .empty-sparkle { font-size: 10px; color: var(--muted); margin-left: 4px; opacity: 0.8; }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(6px); }
@@ -298,7 +298,7 @@
     .todo-item:hover .delete-btn { opacity: 1; }
     .delete-btn:hover { transform: scale(1.2); }
 
-    .input-area { padding: 11px 14px 8px; }
+    .input-area { padding: 12px 14px 12px; }
 
     .input-row {
       gap: 7px;
@@ -316,7 +316,7 @@
       background: transparent;
       outline: none;
     }
-    .input-row input::placeholder { color: var(--muted); font-weight: 300; }
+    .input-row input::placeholder { color: var(--muted); font-weight: 400; }
 
     .add-btn {
       font-size: var(--sm);
@@ -342,7 +342,7 @@
 
     .footer-stats {
       font-size: var(--sm);
-      font-weight: 300;
+      font-weight: 400;
       color: var(--muted);
       letter-spacing: 0.08em;
       transition: opacity var(--dur-normal) var(--ease);
@@ -350,7 +350,7 @@
 
     .footer-link {
       font-size: var(--sm);
-      font-weight: 300;
+      font-weight: 400;
       color: var(--muted);
       letter-spacing: 0.08em;
       text-decoration: none;
@@ -441,14 +441,14 @@
 
   <script>
     const UNSPLASH_IDS = [
-      'photo-1501854140801-50d01698950b',
-      'photo-1448375240586-882707db888b',
-      'photo-1470071459604-3b5ec3a7fe05',
-      'photo-1433086966358-54859d0ed716',
-      'photo-1472214103451-9374bd1c798e',
-      'photo-1464822759023-fed622ff2c3b',
-      'photo-1519681393784-d120267933ba',
-      'photo-1506905925346-21bda4d32df4',
+      'photo-1552845108-5f775a2ccb9b',
+      'photo-1689005047041-87d99d9396e4',
+      'photo-1675518806026-53201020ef09',
+      'photo-1687463221023-02f259da7d77',
+      'photo-1690207925008-2ab494a360e6',
+      'photo-1732979887681-6d8d139d84be',
+      'photo-1650611250959-1e823abf6841',
+      'photo-1679210208332-a58e411412ab',
     ];
 
     function randomBg() {
