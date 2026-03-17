@@ -38,7 +38,7 @@ Vanilla JS · Bootstrap 5 (layout utilities only) · Font Awesome · Nunito via 
 
 ## Run locally
 
-Rename `todo.html` to `index.html`, open in browser. No install, no build step.
+open in browser. No install, no build step.
 
 ---
 
